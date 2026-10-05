@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0e17">
+<title>QR Studio</title>
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#0b0e17;color:white;
+ font-family:Arial,sans-serif;
+ background-image:radial-gradient(circle at 10% 0%,#28345d,transparent 35%),
+ radial-gradient(circle at 90% 100%,#40235f,transparent 35%);
+ min-height:100vh
+}
+.container{max-width:1100px;margin:auto;padding:25px 18px 40px}
+header{text-align:center;margin-bottom:25px}
+header h1{
+ font-size:clamp(34px,7vw,55px);margin:0;
+ background:linear-gradient(90deg,#8064ff,#00d4ff);
+ -webkit-background-clip:text;color:transparent
+}
+header p{color:#aeb5ca;margin-top:8px}
+.app{display:grid;grid-template-columns:1fr 390px;gap:20px}
+.panel{
+ background:rgba(18,22,35,.95);
+ border:1px solid #30384f;border-radius:20px;padding:22px;
+ box-shadow:0 15px 40px #0004
+}
+h2{font-size:20px;margin:0 0 18px}
+label{display:block;margin:16px 0 8px;font-size:14px;font-weight:bold;color:#dce1f1}
+textarea,select{
+ width:100%;padding:13px;border-radius:12px;
+ background:#111624;color:white;border:1px solid #30384f;
+ font-size:15px;outline:none
+}
+textarea{resize:vertical;min-height:100px}
+textarea:focus,select:focus{border-color:#7561ff}
+.designs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.design{
+ padding:11px 5px;border-radius:11px;
+ border:1px solid #30384f;background:#111624;
+ color:white;cursor:pointer;font-size:12px
+}
+.design.active{background:linear-gradient(135deg,#6250e9,#287de0);border-color:transparent}
+.design-icon{display:block;font-size:22px;margin-bottom:4px}
+.colors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.color-box{background:#111624;border:1px solid #30384f;border-radius:12px;padding:10px}
+.color-box span{display:block;font-size:12px;color:#aeb5ca;margin-bottom:6px}
+input[type=color]{width:100%;height:35px;border:0;background:none;cursor:pointer}
+input[type=range]{width:100%;accent-color:#7561ff}
+.range-row{display:flex;align-items:center;gap:12px}
+.range-value{color:#aeb5ca;min-width:48px;text-align:right;font-size:13px}
+input[type=text]{
+ width:100%;padding:12px;background:#111624;
+ color:white;border:1px solid #30384f;border-radius:12px
+}
+.preview-panel{display:flex;flex-direction:column;align-items:center}
+.preview{
+ width:100%;min-height:340px;display:flex;align-items:center;
+ justify-content:center;background:#e9e9e9;border-radius:16px;padding:15px;
+ overflow:hidden
+}
+#qr{padding:5px;background:white;border-radius:8px;max-width:100%}
+#qr canvas,#qr svg{display:block;max-width:100%;height:auto}
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;margin-top:15px}
+.action{
+ border:0;border-radius:12px;padding:14px 8px;
+ color:white;font-weight:bold;font-size:14px;cursor:pointer;
+ background:#252c40;transition:.2s
+}
+.action:active{transform:scale(.97)}
+.primary{background:linear-gradient(135deg,#6857ff,#277ce4)}
+.green{background:linear-gradient(135deg,#08a875,#00c98c)}
+.copy{width:100%;margin-top:9px}
+.hint{font-size:12px;color:#929bb1;text-align:center;line-height:1.5;margin-top:13px}
+.status{font-size:12px;color:#7ee7c2;text-align:center;margin-top:12px;min-height:16px}
+footer{text-align:center;color:#697187;margin-top:25px;font-size:12px}
+
+@media(max-width:850px){
+ .app{grid-template-columns:1fr}
+ .preview-panel{order:-1}
+ .preview{min-height:330px}
+}
+@media(max-width:500px){
+ .container{padding:18px 12px 30px}
+ header{margin-bottom:18px}
+ header p{font-size:13px}
+ .panel{padding:16px;border-radius:16px}
+ h2{font-size:18px}
+ .designs{grid-template-columns:repeat(3,1fr)}
+ .preview{min-height:320px;padding:10px}
+ .buttons{gap:7px}
+ .action{font-size:13px;padding:13px 5px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+<h1>QR STUDIO</h1>
+<p>Создавай красивые QR-коды в своём стиле</p>
+</header>
+
+<div class="app">
+
+<section class="panel">
+<h2>Настройки QR-кода</h2>
+
+<label>Текст или ссылка</label>
+<textarea id="data">https://google.com</textarea>
+
+<label>Дизайн</label>
+<div class="designs">
+<button class="design active" data-style="square"><span class="design-icon">▦</span>Classic</button>
+<button class="design" data-style="dots"><span class="design-icon">⠿</span>Dots</button>
+<button class="design" data-style="rounded"><span class="design-icon">▦</span>Rounded</button>
+<button class="design" data-style="extra-rounded"><span class="design-icon">◉</span>Soft</button>
+<button class="design" data-style="classy"><span class="design-icon">◆</span>Classy</button>
+<button class="design" data-style="classy-rounded"><span class="design-icon">◇</span>Elegant</button>
+</div>
+
+<label>Цвета</label>
+<div class="colors">
+<div class="color-box">
+<span>Передний план</span>
+<input type="color" id="foreground" value="#111111">
+</div>
+<div class="color-box">
+<span>Фон</span>
+<input type="color" id="background" value="#ffffff">
+</div>
+</div>
+
+<label>Градиент</label>
+<select id="gradient">
+<option value="none">Без градиента</option>
+<option value="vertical">Вертикальный</option>
+<option value="horizontal">Горизонтальный</option>
+<option value="diagonal">Диагональный</option>
+</select>
+
+<label>Размер</label>
+<div class="range-row">
+<input type="range" id="size" min="200" max="1000" value="300" step="50">
+<span class="range-value" id="sizeValue">300px</span>
+</div>
+
+<label>Коррекция ошибок</label>
+<select id="errorCorrection">
+<option value="L">L — 7%</option>
+<option value="M" selected>M — 15%</option>
+<option value="Q">Q — 25%</option>
+<option value="H">H — 30%</option>
+</select>
+
+<label>Логотип по центру (URL)</label>
+<input type="text" id="logo" placeholder="https://example.com/logo.png">
+
+<div class="status" id="status"></div>
+</section>
+
+<section class="panel preview-panel">
+<h2>Предпросмотр</h2>
+<div class="preview">
+<div id="qr"></div>
+</div>
+
+<div class="buttons">
+<button class="action primary" id="downloadPNG">↓ Скачать PNG</button>
+<button class="action green" id="downloadSVG">↓ Скачать SVG</button>
+</div>
+
+<button class="action copy" id="copyButton">⧉ Копировать данные</button>
+
+<div class="hint">
+QR-код создаётся прямо в браузере.<br>
+Для логотипа рекомендуется коррекция Q или H.
+</div>
+</section>
+
+</div>
+
+<footer>QR Studio © 2026</footer>
+</div>
+
+<script>
+let currentStyle="square";
+let qrCode;
+const qrContainer=document.getElementById("qr");
+
+function getGradient(){
+ const type=document.getElementById("gradient").value;
+ if(type==="none")return null;
+
+ return {
+  type:"linear",
+  colorStops:[
+   {offset:0,color:document.getElementById("foreground").value},
+   {offset:1,color:"#00c6ff"}
+  ],
+  rotation:type==="vertical"?90:type==="diagonal"?45:0
+ };
+}
+
+function generateQR(){
+ const data=document.getElementById("data").value.trim();
+ if(!data){
+  qrContainer.innerHTML='<div style="color:#777;padding:25px">Введите данные</div>';
+  qrCode=null;
+  return;
+ }
+
+ const size=Number(document.getElementById("size").value);
+ const foreground=document.getElementById("foreground").value;
+ const background=document.getElementById("background").value;
+ const errorCorrection=document.getElementById("errorCorrection").value;
+ const logo=document.getElementById("logo").value.trim();
+
+ const dotsType=currentStyle;
+ let cornerSquare="square";
+ let cornerDot="square";
+
+ if(["rounded","extra-rounded","classy-rounded"].includes(currentStyle)){
+  cornerSquare="extra-rounded";
+  cornerDot="dot";
+ }
+ if(currentStyle==="dots"){
+  cornerSquare="dot";
+  cornerDot="dot";
+ }
+
+ const options={
+  width:size,
+  height:size,
+  type:"canvas",
+  data,
+  margin:12,
+  qrOptions:{errorCorrectionLevel:errorCorrection},
+  dotsOptions:{type:dotsType,color:foreground},
+  backgroundOptions:{color:background},
+  cornersSquareOptions:{type:cornerSquare,color:foreground},
+  cornersDotOptions:{type:cornerDot,color:foreground},
+  imageOptions:{
+   crossOrigin:"anonymous",
+   margin:8,
+   hideBackgroundDots:true
+  }
+ };
+
+ const gradient=getGradient();
+ if(gradient)options.dotsOptions.gradient=gradient;
+ if(logo)options.image=logo;
+
+ qrContainer.innerHTML="";
+ qrCode=new QRCodeStyling(options);
+ qrCode.append(qrContainer);
+
+ document.getElementById("status").textContent="QR-код обновлён ✓";
+}
+
+document.querySelectorAll(".design").forEach(button=>{
+ button.addEventListener("click",()=>{
+  document.querySelectorAll(".design").forEach(item=>item.classList.remove("active"));
+  button.classList.add("active");
+  currentStyle=button.dataset.style;
+  generateQR();
+ });
+});
+
+["data","foreground","background","logo"].forEach(id=>{
+ document.getElementById(id).addEventListener("input",generateQR);
+});
+
+["gradient","errorCorrection"].forEach(id=>{
+ document.getElementById(id).addEventListener("change",generateQR);
+});
+
+const sizeSlider=document.getElementById("size");
+sizeSlider.addEventListener("input",()=>{
+ document.getElementById("sizeValue").textContent=sizeSlider.value+"px";
+ generateQR();
+});
+
+document.getElementById("downloadPNG").addEventListener("click",()=>{
+ if(qrCode)qrCode.download({name:"qr-code",extension:"png"});
+});
+
+document.getElementById("downloadSVG").addEventListener("click",()=>{
+ if(qrCode)qrCode.download({name:"qr-code",extension:"svg"});
+});
+
+document.getElementById("copyButton").addEventListener("click",async()=>{
+ const data=document.getElementById("data").value;
+ if(!data)return;
+
+ try{
+  await navigator.clipboard.writeText(data);
+  const button=document.getElementById("copyButton");
+  button.textContent="✓ Скопировано";
+  setTimeout(()=>button.textContent="⧉ Копировать данные",1500);
+ }catch(error){
+  alert("Не удалось скопировать данные");
+ }
+});
+
+generateQR();
+</script>
+</body>
+</html>
